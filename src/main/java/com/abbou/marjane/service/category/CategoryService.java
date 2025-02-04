@@ -55,5 +55,5 @@ public class CategoryService implements ICategoryService {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found!"));
     }
-}
 
+}  

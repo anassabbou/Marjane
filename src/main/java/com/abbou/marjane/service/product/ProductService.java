@@ -1,16 +1,16 @@
 package com.abbou.marjane.service.product;
 
 
+import com.abbou.marjane.dtos.ImageDto;
+import com.abbou.marjane.dtos.ProductDto;
 import com.abbou.marjane.model.*;
-import com.abbou.marjane.repository.CartItemRepository;
-import com.abbou.marjane.repository.CategoryRepository;
-import com.abbou.marjane.repository.OrderItemRepository;
-import com.abbou.marjane.repository.ProductRepository;
+import com.abbou.marjane.repository.*;
 import com.abbou.marjane.request.AddProductRequest;
 import com.abbou.marjane.request.ProductUpdateRequest;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,11 +23,13 @@ public class ProductService implements IProductService {
     private final CategoryRepository categoryRepository;
     private final CartItemRepository cartItemRepository;
     private final OrderItemRepository orderItemRepository;
+    private final ImageRepository imageRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public Product addProduct(AddProductRequest request) {
         if (productExists(request.getName(), request.getBrand())) {
-            throw new EntityExistsException(request.getName() + "already exists!");
+            throw new EntityExistsException(request.getName() + " already exists!");
         }
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
                 .orElseGet(() -> {
@@ -135,6 +137,24 @@ public class ProductService implements IProductService {
 
     @Override
     public List<Product> getProductsByName(String name) {
-        return productRepository.findByName(name);
+        return Optional.ofNullable(productRepository.findByName(name)).orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
+
+    @Override
+    public List<ProductDto> getConvertedProducts(List<Product> products) {
+        return products.stream().map(this::convertToDto).toList();
+    }
+
+    @Override
+    public ProductDto convertToDto(Product product) {
+        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+        List<Image> images = imageRepository.findByProductId(product.getId());
+        List<ImageDto> imageDtos = images.stream()
+                .map(image -> modelMapper.map(image, ImageDto.class))
+                .toList();
+        productDto.setImages(imageDtos);
+        return productDto;
+    }
+
+
 }

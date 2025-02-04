@@ -29,5 +29,9 @@ public class Cart {
     private Set<CartItem> items = new HashSet<>();
 
     public void removeItem(CartItem cartItem) {
+
+    }
+
+    private void updateTotalAmount() {
     }
 }
