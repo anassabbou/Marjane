@@ -5,7 +5,7 @@ import com.abbou.marjane.dtos.ImageDto;
 import com.abbou.marjane.model.Image;
 import com.abbou.marjane.response.ApiResponse;
 import com.abbou.marjane.service.image.IImageService;
-import jakarta.annotation.Resource;
+import org.springframework.core.io.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -35,12 +35,17 @@ public class ImageController {
     @GetMapping("/image/download/{imageId}")
     public ResponseEntity<Resource> downloadImage(@PathVariable Long imageId) throws SQLException {
         Image image = imageService.getImageById(imageId);
-        ByteArrayResource resource = new ByteArrayResource(image.getImage().getBytes(1, (int) image.getImage().length()));
+        byte[] imageBytes;
+        try (var inputStream = image.getImage().getBinaryStream()) {
+            imageBytes = inputStream.readAllBytes();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read image data", e);
+        }
+        ByteArrayResource resource = new ByteArrayResource(imageBytes);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(image.getFileType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
                         + image.getFileName() + "\"").body(resource);
-
     }
 
 
