@@ -13,8 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -89,19 +92,15 @@ public class ProductService implements IProductService {
                         orderItem.setProduct(null);
                         orderItemRepository.save(orderItem);
                     });
-
                     Optional.ofNullable(product.getCategory())
                             .ifPresent(category -> category.getProducts().remove(product));
                     product.setCategory(null);
-
                     productRepository.deleteById(product.getId());
-
                 }, () -> {
                     throw new EntityNotFoundException("Product not found!");
                 });
 
     }
-
 
     @Override
     public Product getProductById(Long productId) {
@@ -137,8 +136,30 @@ public class ProductService implements IProductService {
 
     @Override
     public List<Product> getProductsByName(String name) {
-        return Optional.ofNullable(productRepository.findByName(name)).orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        return Optional.ofNullable(productRepository.findByName(name))
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
+
+    @Override
+    public List<Product> findDistinctProductsByName(){
+        List<Product> products = getAllProducts();
+        Map<String, Product> distinctProductMap = products.stream()
+                .collect(Collectors.toMap(
+                        Product :: getName,
+                        product -> product,
+                        (existing, replacement) -> existing));
+        return new ArrayList<>(distinctProductMap.values());
+    }
+
+    @Override
+    public List<String> getAllDistinctBrands(){
+        return productRepository.findAll()
+                .stream()
+                .map(Product :: getBrand)
+                .distinct()
+                .toList();
+    }
+
 
     @Override
     public List<ProductDto> getConvertedProducts(List<Product> products) {
@@ -156,5 +177,8 @@ public class ProductService implements IProductService {
         return productDto;
     }
 
-
+    @Override
+    public List<Product> getProductsByCategoryId(Long categoryId) {
+        return productRepository.findAllByCategoryId(categoryId);
+    }
 }

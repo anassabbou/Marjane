@@ -2,6 +2,7 @@ package com.abbou.marjane.service.cart;
 
 import java.math.BigDecimal;
 
+import com.abbou.marjane.dtos.CartDto;
 import com.abbou.marjane.model.Cart;
 import com.abbou.marjane.model.User;
 
@@ -15,5 +16,8 @@ public interface ICartService {
         Cart initializeNewCartForUser(User user);
     
         BigDecimal getTotalPrice(Long cartId);
-    }
+        CartDto convertToDto(Cart cart);
+
+
+}
     

@@ -2,6 +2,8 @@ package com.abbou.marjane.service.cart;
 
 import java.math.BigDecimal;
 
+import com.abbou.marjane.dtos.CartItemDto;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.abbou.marjane.model.Cart;
@@ -21,6 +23,7 @@ public class CartItemService implements ICartItemService {
     private final ICartService cartService;
     private final IProductService productService;
     private final CartRepository cartRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public void addItemToCart(Long cartId, Long productId, int quantity) {
@@ -75,5 +78,10 @@ public class CartItemService implements ICartItemService {
                 .stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst().orElseThrow(() -> new EntityNotFoundException("Cart not found!"));
+    }
+
+    @Override
+    public CartItemDto convertToDto(CartItem cartItem){
+        return modelMapper.map(cartItem, CartItemDto.class);
     }
 }

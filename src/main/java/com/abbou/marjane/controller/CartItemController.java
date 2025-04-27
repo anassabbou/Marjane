@@ -31,7 +31,8 @@ public class CartItemController {
                                               // Long userId,
                                                @RequestParam Long productId,
                                                @RequestParam int quantity){
-        User user = userService.getUserById(1L);
+        // User user = userService.getUserById(1L); using for testing without user authentication
+        User user =userService.getAuthenticateUser();
         Cart cart = cartService.initializeNewCartForUser(user);
         cartItemService.addItemToCart(cart.getId(), productId, quantity);
         return ResponseEntity.ok(new ApiResponse("Item added successfully!", null ));

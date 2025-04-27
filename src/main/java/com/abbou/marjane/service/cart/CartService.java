@@ -1,8 +1,10 @@
 package com.abbou.marjane.service.cart;
 
 
+import com.abbou.marjane.dtos.CartDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.abbou.marjane.model.Cart;
@@ -18,6 +20,8 @@ import java.util.Optional;
 public class CartService implements ICartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final ModelMapper mapper;
+
 
 
     @Override
@@ -58,5 +62,10 @@ public class CartService implements ICartService {
     public BigDecimal getTotalPrice(Long cartId) {
         Cart cart = getCart(cartId);
         return cart.getTotalAmount();
+    }
+
+    @Override
+    public CartDto convertToDto(Cart cart){
+        return mapper.map(cart, CartDto.class);
     }
 }

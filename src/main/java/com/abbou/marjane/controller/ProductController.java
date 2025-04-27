@@ -9,6 +9,7 @@ import com.abbou.marjane.response.ApiResponse;
 import com.abbou.marjane.service.product.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,23 +35,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiResponse("Found!", productDto));
     }
 
-    // Assignment 3
-    /*
-     *   Your assignment is to complete the product controller implementation;
-     * //1. Note: Remember to check the ones that are returning list and single product
-     *  in order to use the appropriate dto converter.
-     *
-     * // 2. Remember to use the
-     *  @RequestBody,
-     *  @PathVariable,
-     *  @RequestParam,
-     *  in their different area where is needed.
-     *  (e.g addProduct and updateProduct need the @RequestBody and maybe together with the @PathVariable)
-     *
-     *
-     * */
-
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest product) {
         Product theProduct = productService.addProduct(product);
@@ -58,6 +43,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiResponse("Add product success!", productDto));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/product/{productId}/update")
     public ResponseEntity<ApiResponse> updateProduct(@RequestBody ProductUpdateRequest request, @PathVariable Long productId) {
         Product theProduct = productService.updateProduct(request, productId);
@@ -65,6 +51,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiResponse("Update product success!", productDto));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/product/{productId}/delete")
     public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long productId) {
         productService.deleteProductById(productId);
@@ -99,10 +86,30 @@ public class ProductController {
         return ResponseEntity.ok(new ApiResponse("success", convertedProducts));
     }
 
-    @GetMapping("/product/{category}/all/products")
+    @GetMapping("/{category}/products")
     public ResponseEntity<ApiResponse> findProductsByCategory(@PathVariable String category) {
         List<Product> products = productService.getProductsByCategory(category);
         List<ProductDto> convertedProducts = productService.getConvertedProducts(products);
         return ResponseEntity.ok(new ApiResponse("success", convertedProducts));
     }
+
+    @GetMapping("/category/{categoryId}/products")
+    public ResponseEntity<ApiResponse> findProductsByCategoryId(@PathVariable Long categoryId) {
+        List<Product> products = productService.getProductsByCategoryId(categoryId);
+        List<ProductDto> convertedProducts = productService.getConvertedProducts(products);
+        return ResponseEntity.ok(new ApiResponse("success", convertedProducts));
+    }
+
+    @GetMapping("/distinct/products")
+    public ResponseEntity<ApiResponse> getDistinctProductsByName() {
+        List<Product> products = productService.findDistinctProductsByName();
+        List<ProductDto> productDtos = productService.getConvertedProducts(products);
+        return ResponseEntity.ok(new ApiResponse("Found", productDtos));
+    }
+
+    @GetMapping("/distinct/brands")
+    public ResponseEntity<ApiResponse> getDistinctBrands() {
+        return ResponseEntity.ok(new ApiResponse("Found", productService.getAllDistinctBrands()));
+    }
 }
+

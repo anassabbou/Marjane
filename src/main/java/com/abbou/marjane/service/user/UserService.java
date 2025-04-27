@@ -5,6 +5,9 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.abbou.marjane.dtos.UserDto;
@@ -20,6 +23,7 @@ import java.util.Optional;
 public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public User createUser(CreateUserRequest request) {
@@ -30,7 +34,7 @@ public class UserService implements IUserService {
                     user.setFirstName(request.getFirstName());
                     user.setLastName(request.getLastName());
                     user.setEmail(request.getEmail());
-                    user.setPassword(request.getPassword());
+                    user.setPassword(passwordEncoder.encode(request.getPassword()));
                     return userRepository.save(user);
                 }).orElseThrow(() -> new EntityExistsException("Oops! " + request.getEmail() + " already exists!"));
     }
@@ -56,8 +60,31 @@ public class UserService implements IUserService {
             throw new EntityNotFoundException("User not found!");
         });
     }
+    
     @Override
     public UserDto convertUserToDto(User user) {
         return modelMapper.map(user, UserDto.class);
+    }
+
+    @Override
+    public User getAuthenticateUser(){
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        System.out.println("testing email"+email);
+        return  Optional.ofNullable(
+                userRepository.findByEmail(email))
+                .orElseThrow(() -> new EntityNotFoundException("Log in Required!"));
+    }
+
+    public void migratePlainTextPasswords() {
+        Iterable<User> users = userRepository.findAll();
+        for (User user : users) {
+            String password = user.getPassword();
+            if (password != null && !password.startsWith("$2a$") && !password.startsWith("$2b$") && !password.startsWith("$2y$")) {
+                String encodedPassword = passwordEncoder.encode(password);
+                user.setPassword(encodedPassword);
+                userRepository.save(user);
+            }
+        }
     }
 }
