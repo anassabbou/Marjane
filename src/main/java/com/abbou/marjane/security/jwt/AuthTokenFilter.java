@@ -1,6 +1,5 @@
 package com.abbou.marjane.security.jwt;
 
-
 import com.abbou.marjane.response.ErrorResponse;
 import com.abbou.marjane.security.user.ShopUserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +15,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 
 import java.io.IOException;
 

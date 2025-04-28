@@ -2,6 +2,7 @@ package com.abbou.marjane.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+
 @Data
 public class LoginRequest {
 

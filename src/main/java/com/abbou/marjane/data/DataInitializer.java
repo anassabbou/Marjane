@@ -1,6 +1,5 @@
 package com.abbou.marjane.data;
 
-
 import com.abbou.marjane.model.Role;
 import com.abbou.marjane.model.User;
 import com.abbou.marjane.repository.RoleRepository;
@@ -29,7 +28,7 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
     public void onApplicationEvent(ApplicationReadyEvent event) {
         Set<String> defaultRoles = Set.of("ROLE_USER" , "ROLE_ADMIN", "ROLE_CUSTOMER");
         createDefaultRoles(defaultRoles);
-        createDefaultAdminIfNotExits();
+        // createDefaultAdminIfNotExits();
     }
 
     private void createDefaultRoles(Set<String> roles){

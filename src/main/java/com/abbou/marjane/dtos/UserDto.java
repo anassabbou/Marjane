@@ -1,8 +1,8 @@
 package com.abbou.marjane.dtos;
 
-import java.util.List;
-
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class UserDto {
@@ -12,5 +12,6 @@ public class UserDto {
     private String email;
     private List<OrderDto> orders;
     private CartDto cart;
+    private List<AddressDto> addressList;
 
 }

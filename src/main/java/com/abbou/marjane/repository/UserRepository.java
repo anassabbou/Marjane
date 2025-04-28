@@ -1,12 +1,11 @@
 package com.abbou.marjane.repository;
 
+import com.abbou.marjane.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.abbou.marjane.model.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-            boolean existsByEmail(String email);
-    User findByEmail(String email);
+    boolean existsByEmail(String email);
 
+    User findByEmail(String email);
 }
-        

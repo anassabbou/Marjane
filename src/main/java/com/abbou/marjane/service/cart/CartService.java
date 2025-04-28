@@ -1,16 +1,14 @@
 package com.abbou.marjane.service.cart;
 
-
 import com.abbou.marjane.dtos.CartDto;
-import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
-
 import com.abbou.marjane.model.Cart;
 import com.abbou.marjane.model.User;
 import com.abbou.marjane.repository.CartItemRepository;
 import com.abbou.marjane.repository.CartRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -21,7 +19,6 @@ public class CartService implements ICartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ModelMapper mapper;
-
 
 
     @Override
@@ -68,4 +65,5 @@ public class CartService implements ICartService {
     public CartDto convertToDto(Cart cart){
         return mapper.map(cart, CartDto.class);
     }
+
 }

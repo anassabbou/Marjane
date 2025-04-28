@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
-
 @Component
 public class CookieUtils {
 
@@ -30,13 +29,14 @@ public class CookieUtils {
     }
 
     private void setResponseHeader(HttpServletResponse response, Cookie refreshTokenCookie, String sameSite) {
-        String cookieHeader = refreshTokenCookie.getName() + "=" +
-                refreshTokenCookie.getValue() +
-                "; HttpOnly; Path=" + refreshTokenCookie.getPath() +
-                "; Max-Age=" + refreshTokenCookie.getMaxAge() +
-                (useSecureCookie ? "; Secure" : "") +
-                "; SameSite=" + sameSite;
-        response.setHeader("Set-Cookie", cookieHeader);
+        StringBuilder cookieHeader = new StringBuilder();
+        cookieHeader.append(refreshTokenCookie.getName()).append("=")
+                .append(refreshTokenCookie.getValue())
+                .append("; HttpOnly; Path=").append(refreshTokenCookie.getPath())
+                .append("; Max-Age=").append(refreshTokenCookie.getMaxAge())
+                .append(useSecureCookie ? "; Secure" : "")
+                .append("; SameSite=").append(sameSite);
+        response.setHeader("Set-Cookie", cookieHeader.toString());
     }
 
     public String getRefreshTokenFromCookies(HttpServletRequest request) {

@@ -1,6 +1,5 @@
 package com.abbou.marjane.service.category;
 
-
 import com.abbou.marjane.model.Category;
 import com.abbou.marjane.repository.CategoryRepository;
 import jakarta.persistence.EntityExistsException;
@@ -55,5 +54,4 @@ public class CategoryService implements ICategoryService {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found!"));
     }
-
-}  
+}

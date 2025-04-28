@@ -1,6 +1,13 @@
 package com.abbou.marjane.service.user;
 
-
+import com.abbou.marjane.dtos.UserDto;
+import com.abbou.marjane.model.Role;
+import com.abbou.marjane.model.User;
+import com.abbou.marjane.repository.AddressRepository;
+import com.abbou.marjane.repository.RoleRepository;
+import com.abbou.marjane.repository.UserRepository;
+import com.abbou.marjane.request.CreateUserRequest;
+import com.abbou.marjane.request.UserUpdateRequest;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -10,13 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.abbou.marjane.dtos.UserDto;
-import com.abbou.marjane.model.User;
-import com.abbou.marjane.repository.UserRepository;
-import com.abbou.marjane.request.CreateUserRequest;
-import com.abbou.marjane.request.UserUpdateRequest;
-
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -24,9 +26,14 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AddressRepository addressRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public User createUser(CreateUserRequest request) {
+        Role userRole = Optional.ofNullable(roleRepository.findByName("ROLE_USER"))
+                .orElseThrow(() -> new EntityNotFoundException("Role nor found!"));
+
         return Optional.of(request)
                 .filter(user -> !userRepository.existsByEmail(request.getEmail()))
                 .map(req -> {
@@ -35,7 +42,16 @@ public class UserService implements IUserService {
                     user.setLastName(request.getLastName());
                     user.setEmail(request.getEmail());
                     user.setPassword(passwordEncoder.encode(request.getPassword()));
-                    return userRepository.save(user);
+                    user.setRoles(Set.of(userRole));
+                    User savedUser = userRepository.save(user);
+                    Optional.ofNullable(req.getAddressList()).ifPresent(addressList -> {
+                        addressList.forEach(address -> {
+                            address.setUser(savedUser);
+                            addressRepository.save(address);
+
+                        });
+                    });
+                    return savedUser;
                 }).orElseThrow(() -> new EntityExistsException("Oops! " + request.getEmail() + " already exists!"));
     }
 
@@ -60,31 +76,18 @@ public class UserService implements IUserService {
             throw new EntityNotFoundException("User not found!");
         });
     }
-    
+
     @Override
     public UserDto convertUserToDto(User user) {
         return modelMapper.map(user, UserDto.class);
     }
 
     @Override
-    public User getAuthenticateUser(){
-        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+    public User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("The authenticated user: " +authentication.getName());
         String email = authentication.getName();
-        System.out.println("testing email"+email);
-        return  Optional.ofNullable(
-                userRepository.findByEmail(email))
-                .orElseThrow(() -> new EntityNotFoundException("Log in Required!"));
-    }
-
-    public void migratePlainTextPasswords() {
-        Iterable<User> users = userRepository.findAll();
-        for (User user : users) {
-            String password = user.getPassword();
-            if (password != null && !password.startsWith("$2a$") && !password.startsWith("$2b$") && !password.startsWith("$2y$")) {
-                String encodedPassword = passwordEncoder.encode(password);
-                user.setPassword(encodedPassword);
-                userRepository.save(user);
-            }
-        }
+        return Optional.ofNullable(userRepository.findByEmail(email))
+                .orElseThrow(() -> new EntityNotFoundException("Log in required!"));
     }
 }

@@ -1,6 +1,5 @@
 package com.abbou.marjane.dtos;
 
-
 import lombok.Data;
 
 @Data

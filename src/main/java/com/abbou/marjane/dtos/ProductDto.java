@@ -1,5 +1,11 @@
 package com.abbou.marjane.dtos;
+
 import com.abbou.marjane.model.Category;
+import com.abbou.marjane.model.Image;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 import java.math.BigDecimal;

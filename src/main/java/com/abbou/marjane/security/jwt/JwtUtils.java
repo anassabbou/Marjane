@@ -1,6 +1,5 @@
 package com.abbou.marjane.security.jwt;
 
-
 import com.abbou.marjane.security.user.ShopUserDetails;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

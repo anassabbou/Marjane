@@ -1,13 +1,5 @@
 package com.abbou.marjane.service.order;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
-
 import com.abbou.marjane.dtos.OrderDto;
 import com.abbou.marjane.enums.OrderStatus;
 import com.abbou.marjane.model.Cart;
@@ -16,10 +8,20 @@ import com.abbou.marjane.model.OrderItem;
 import com.abbou.marjane.model.Product;
 import com.abbou.marjane.repository.OrderRepository;
 import com.abbou.marjane.repository.ProductRepository;
+import com.abbou.marjane.request.PaymentRequest;
 import com.abbou.marjane.service.cart.ICartService;
-
-import jakarta.transaction.Transactional;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class OrderService implements IOrderService {
     private final ProductRepository productRepository;
     private final ICartService cartService;
     private final ModelMapper modelMapper;
+
 
 
     @Transactional
@@ -75,8 +78,28 @@ public class OrderService implements IOrderService {
     @Override
     public List<OrderDto> getUserOrders(Long userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
-        return  orders.stream().map(this :: convertToDto).toList();
+        return orders.stream().map(this::convertToDto).toList();
     }
+
+    @Override
+    public String createPaymentIntent(PaymentRequest request) throws StripeException {
+        long amountInSmallestUnit = Math.round(request.getAmount() * 100);
+        PaymentIntent intent = PaymentIntent.create(
+                PaymentIntentCreateParams.builder()
+                        .setAmount(amountInSmallestUnit)
+                        .setCurrency(request.getCurrency())
+                        .addPaymentMethodType("card")
+                        .build());
+        return  intent.getClientSecret();
+    }
+
+
+
+
+
+
+
+
 
     @Override
     public OrderDto convertToDto(Order order) {

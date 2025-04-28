@@ -1,20 +1,18 @@
 package com.abbou.marjane.service.cart;
 
-import java.math.BigDecimal;
-
 import com.abbou.marjane.dtos.CartItemDto;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
-
 import com.abbou.marjane.model.Cart;
 import com.abbou.marjane.model.CartItem;
 import com.abbou.marjane.model.Product;
 import com.abbou.marjane.repository.CartItemRepository;
 import com.abbou.marjane.repository.CartRepository;
 import com.abbou.marjane.service.product.IProductService;
-
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +23,9 @@ public class CartItemService implements ICartItemService {
     private final CartRepository cartRepository;
     private final ModelMapper modelMapper;
 
+
     @Override
-    public void addItemToCart(Long cartId, Long productId, int quantity) {
+    public CartItem addItemToCart(Long cartId, Long productId, int quantity) {
         Cart cart = cartService.getCart(cartId);
         Product product = productService.getProductById(productId);
         CartItem cartItem = cart.getItems()
@@ -45,6 +44,7 @@ public class CartItemService implements ICartItemService {
         cart.addItem(cartItem);
         cartItemRepository.save(cartItem);
         cartRepository.save(cart);
+        return  cartItem;
     }
 
     @Override

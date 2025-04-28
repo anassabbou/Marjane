@@ -6,11 +6,15 @@ import com.abbou.marjane.request.CreateUserRequest;
 import com.abbou.marjane.request.UserUpdateRequest;
 
 public interface IUserService {
-        User createUser(CreateUserRequest request);
-        User updateUser(UserUpdateRequest request, Long userId);
-        User getUserById(Long userId);
-        void deleteUser(Long userId);
-        UserDto convertUserToDto(User user);
-        User getAuthenticateUser();
-    }
-    
+    User createUser(CreateUserRequest request);
+
+    User updateUser(UserUpdateRequest request, Long userId);
+
+    User getUserById(Long userId);
+
+    void deleteUser(Long userId);
+
+    UserDto convertUserToDto(User user);
+
+    User getAuthenticatedUser();
+}

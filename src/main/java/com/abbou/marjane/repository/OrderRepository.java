@@ -1,12 +1,10 @@
 package com.abbou.marjane.repository;
 
-import java.util.List;
-
+import com.abbou.marjane.model.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.abbou.marjane.model.Order;
+import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
-            List<Order> findByUserId(Long userId);
+    List<Order> findByUserId(Long userId);
 }
-        

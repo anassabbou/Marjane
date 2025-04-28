@@ -1,15 +1,14 @@
 package com.abbou.marjane.security.config;
 
-
 import com.abbou.marjane.security.jwt.AuthTokenFilter;
 import com.abbou.marjane.security.jwt.JwtEntryPoint;
 import com.abbou.marjane.security.user.ShopUserDetailsService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -36,7 +35,9 @@ public class ShopConfig {
     private static String API;
     private static final List<String> SECURED_URLS =
             List.of(API + "/carts/**", API + "/cartItems/**", API + "/orders/**");
+
     private final ShopUserDetailsService userDetailsService;
+
     private final JwtEntryPoint authEntryPoint;
 
     @Bean
@@ -87,7 +88,7 @@ public class ShopConfig {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**") // Apply to all endpoints
-                        .allowedOrigins("http://localhost:5174") // Allow this origin
+                        .allowedOrigins("http://localhost:5174","http://buynowdotcom.s3-website-ap-southeast-1.amazonaws.com") // Allow this origin
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow these HTTP methods
                         .allowedHeaders("*") // Allow all headers
                         .allowCredentials(true); // Allow credentials
@@ -95,3 +96,40 @@ public class ShopConfig {
         };
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+ @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
+                registry.addMapping("/**") // Apply to all endpoints
+                        .allowedOrigins("http://localhost:5174", "http://ttt4-app.s3-website-ap-southeast-1.amazonaws.com") // Allow this origin
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow these HTTP methods
+                        .allowedHeaders("*") // Allow all headers
+                        .allowCredentials(true); // Allow credentials
+            }
+        };
+    }
+
+    */

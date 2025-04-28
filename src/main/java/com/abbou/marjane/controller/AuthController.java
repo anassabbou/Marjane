@@ -1,7 +1,6 @@
 package com.abbou.marjane.controller;
 
 import com.abbou.marjane.request.LoginRequest;
-import com.abbou.marjane.security.jwt.JwtUtils;
 import com.abbou.marjane.security.user.ShopUserDetailsService;
 import com.abbou.marjane.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,11 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.abbou.marjane.security.jwt.JwtUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +37,7 @@ public class AuthController {
     private Long refreshTokenExpirationTime;
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest request, HttpServletResponse response){
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest request, HttpServletResponse response) {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         String accessToken = jwtUtils.generateAccessTokenForUser(authentication);
@@ -47,22 +49,23 @@ public class AuthController {
     }
 
 
+
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request){
+    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
         cookieUtils.logCookies(request);
         String refreshToken = cookieUtils.getRefreshTokenFromCookies(request);
-        if (refreshToken != null){
+        if (refreshToken != null) {
             boolean isValid = jwtUtils.validateToken(refreshToken);
-            if (isValid){
+            if (isValid) {
                 String usernameFromToken = jwtUtils.getUsernameFromToken(refreshToken);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(usernameFromToken);
                 String newAccessToken = jwtUtils.generateAccessTokenForUser(
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
-                if (newAccessToken != null){
+                if (newAccessToken != null) {
                     Map<String, String> token = new HashMap<>();
                     token.put("accessToken", newAccessToken);
                     return ResponseEntity.ok(token);
-                }else {
+                } else {
                     return ResponseEntity.status(500).body("Error generating new access token");
                 }
             }
